@@ -1,11 +1,148 @@
-cartpole1:
-  replay_memory_size: 10000
-  mini_batch_size: 32
-  epsilon_init: 1
-  epsilon_decay: 0.995
-  epsilon_min: 0.01
-  network_sync_rate: 1000
+# Base configuration (medium values)
+
+cartpole_base:
   learning_rate_a: 0.001
   discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995         
+  epsilon_decay_steps: 200000  
+  epsilon_min: 0.01
+  stop_on_reward: 500          
+  fc1_nodes: 64
+  train_frequency: 4
+  env_make_params: {}
+
+
+# Learning rate variations
+
+cartpole_lr_low:
+  learning_rate_a: 0.0001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 200000
+  epsilon_min: 0.01
   stop_on_reward: 500
   fc1_nodes: 64
+  train_frequency: 4
+  env_make_params: {}
+
+cartpole_lr_high:
+  learning_rate_a: 0.005
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 200000
+  epsilon_min: 0.01
+  stop_on_reward: 500
+  fc1_nodes: 64
+  train_frequency: 4
+  env_make_params: {}
+
+
+# Update‑to‑data ratio
+
+cartpole_freq_low:   # frequent updates
+  learning_rate_a: 0.001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 200000
+  epsilon_min: 0.01
+  stop_on_reward: 500
+  fc1_nodes: 64
+  train_frequency: 1
+  env_make_params: {}
+
+cartpole_freq_high:  # infrequent updates
+  learning_rate_a: 0.001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 200000
+  epsilon_min: 0.01
+  stop_on_reward: 500
+  fc1_nodes: 64
+  train_frequency: 8
+  env_make_params: {}
+
+
+# Network size 
+
+cartpole_net_small:
+  learning_rate_a: 0.001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 200000
+  epsilon_min: 0.01
+  stop_on_reward: 500
+  fc1_nodes: 32
+  train_frequency: 4
+  env_make_params: {}
+
+cartpole_net_large:
+  learning_rate_a: 0.001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 200000
+  epsilon_min: 0.01
+  stop_on_reward: 500
+  fc1_nodes: 128
+  train_frequency: 4
+  env_make_params: {}
+
+
+# Exploration factor
+
+cartpole_explore_low:
+  learning_rate_a: 0.001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 0.5
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 50000
+  epsilon_min: 0.01
+  stop_on_reward: 500
+  fc1_nodes: 64
+  train_frequency: 4
+  env_make_params: {}
+
+cartpole_explore_high:
+  learning_rate_a: 0.001
+  discount_factor_g: 0.99
+  network_sync_rate: 100
+  replay_memory_size: 10000
+  mini_batch_size: 64
+  epsilon_init: 1.0
+  epsilon_decay: 0.995
+  epsilon_decay_steps: 400000
+  epsilon_min: 0.05
+  stop_on_reward: 500
+  fc1_nodes: 64
+  train_frequency: 4
+  env_make_params: {}
