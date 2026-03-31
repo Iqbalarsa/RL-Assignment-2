@@ -10,7 +10,7 @@ cartpole_base:
   epsilon_decay: 0.995         
   epsilon_decay_steps: 200000  
   epsilon_min: 0.01
-  stop_on_reward: 500          
+  stop_on_reward: 500         
   fc1_nodes: 64
   train_frequency: 4
   env_make_params: {}
@@ -28,13 +28,13 @@ cartpole_lr_low:
   epsilon_decay: 0.995
   epsilon_decay_steps: 200000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 64
   train_frequency: 4
   env_make_params: {}
 
 cartpole_lr_high:
-  learning_rate_a: 0.005
+  learning_rate_a: 0.01
   discount_factor_g: 0.99
   network_sync_rate: 100
   replay_memory_size: 10000
@@ -43,7 +43,7 @@ cartpole_lr_high:
   epsilon_decay: 0.995
   epsilon_decay_steps: 200000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 64
   train_frequency: 4
   env_make_params: {}
@@ -61,7 +61,7 @@ cartpole_freq_low:   # frequent updates
   epsilon_decay: 0.995
   epsilon_decay_steps: 200000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 64
   train_frequency: 1
   env_make_params: {}
@@ -76,7 +76,7 @@ cartpole_freq_high:  # infrequent updates
   epsilon_decay: 0.995
   epsilon_decay_steps: 200000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 64
   train_frequency: 8
   env_make_params: {}
@@ -94,7 +94,7 @@ cartpole_net_small:
   epsilon_decay: 0.995
   epsilon_decay_steps: 200000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 32
   train_frequency: 4
   env_make_params: {}
@@ -109,7 +109,7 @@ cartpole_net_large:
   epsilon_decay: 0.995
   epsilon_decay_steps: 200000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 128
   train_frequency: 4
   env_make_params: {}
@@ -127,7 +127,7 @@ cartpole_explore_low:
   epsilon_decay: 0.995
   epsilon_decay_steps: 50000
   epsilon_min: 0.01
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 64
   train_frequency: 4
   env_make_params: {}
@@ -142,7 +142,7 @@ cartpole_explore_high:
   epsilon_decay: 0.995
   epsilon_decay_steps: 400000
   epsilon_min: 0.05
-  stop_on_reward: 500
+  stop_on_reward: 50000
   fc1_nodes: 64
   train_frequency: 4
   env_make_params: {}
