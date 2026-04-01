@@ -3,7 +3,6 @@ import os
 import time
 from datetime import datetime
 
-# ========== CONFIGURATION ==========
 SCRIPT_NAME = 'DQN.py'          
 HYPERPARAM_SETS = [
     'cartpole_base',          # Base (medium all)
@@ -21,7 +20,6 @@ USE_TN = False
 # ====================================
 
 def run_experiment(hyperparam_set):
-    """Run a single experiment and log output to a file."""
     print(f"\n{'='*60}")
     print(f"Starting experiment: {hyperparam_set} (ER={USE_ER}, TN={USE_TN})")
     print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")

@@ -52,6 +52,7 @@ class DQN:
         self.stop_on_reward = hyperparameters['stop_on_reward']
         self.fc1_nodes = hyperparameters['fc1_nodes']
         self.train_frequency = hyperparameters['train_frequency']
+        self.epsilon_decay_type = hyperparameters.get('epsilon_decay_type', 'linear')
         self.env_make_params = hyperparameters.get('env_make_params', {})
 
         # Neural net and optimizer will be created per run
@@ -79,7 +80,7 @@ class DQN:
             file.write(log_message + '\n')
 
         all_runs_reward = []
-
+        all_runs_steps = []
         for run_number in range(self.num_runs):
             print(f'\nStarting run {run_number + 1}/{self.num_runs}.')
 
@@ -101,6 +102,7 @@ class DQN:
             best_reward = -float('inf')
             episode = 0
             rewards_per_episode = []
+            steps_per_episode = []
 
             while global_step < self.max_steps:
                 state, _ = env.reset()
@@ -141,10 +143,13 @@ class DQN:
                     global_step += 1
 
                     # Decay epsilon
-                    if global_step < self.epsilon_decay_steps:
-                        epsilon = self.epsilon_init - (self.epsilon_init - self.epsilon_min) * (global_step / self.epsilon_decay_steps)
-                    else:
-                        epsilon = self.epsilon_min
+                    if self.epsilon_decay_type == 'exponential':
+                        epsilon = max(epsilon * self.epsilon_decay, self.epsilon_min)
+                    else:   # linear decay
+                        if global_step < self.epsilon_decay_steps:
+                            epsilon = self.epsilon_init - (self.epsilon_init - self.epsilon_min) * (global_step / self.epsilon_decay_steps)
+                        else:
+                            epsilon = self.epsilon_min
 
                     # Sync target network
                     if self.use_tn and global_step % self.network_sync_rate == 0:
@@ -154,6 +159,7 @@ class DQN:
 
                 # Episode finished
                 rewards_per_episode.append(episode_reward)
+                steps_per_episode.append(global_step)
                 episode += 1
 
                 if episode_reward > best_reward:
@@ -164,14 +170,14 @@ class DQN:
                     print(f'Run {run_number+1} | Ep {episode} | Steps {global_step}/{self.max_steps} | Epsilon {epsilon:.2f} | Last score: {episode_reward}')
 
                 # early stop if target reward reached
-                if self.stop_on_reward is not None and episode_reward >= self.stop_on_reward:
-                    print(f"Reached target reward {self.stop_on_reward} at episode {episode}.")
-                    break
+                # if self.stop_on_reward is not None and episode_reward >= self.stop_on_reward:
+                #     print(f"Reached target reward {self.stop_on_reward} at episode {episode}.")
+                #     break
 
             all_runs_reward.append(rewards_per_episode)
-
+            all_runs_steps.append(steps_per_episode)
         print(f'{self.num_runs} runs completed.')
-        self._save_graph(all_runs_reward)
+        self._save_graph(all_runs_reward, all_runs_steps)
 
     def _optimize(self, mini_batch, policy_dqn, target_dqn):
         """Take one optimization step on the policy network."""
@@ -200,7 +206,7 @@ class DQN:
         loss = self.loss_fn(current_q, target_q)
         self.optimizer.zero_grad()
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(policy_dqn.parameters(), max_norm=1.0)
+        # torch.nn.utils.clip_grad_norm_(policy_dqn.parameters(), max_norm=1.0)
         self.optimizer.step()
 
     def _test(self, render):
@@ -230,32 +236,49 @@ class DQN:
         print(f"Test run total reward: {total_reward}")
         env.close()
 
-    def _save_graph(self, all_runs_reward):
-        """Plot learning curve and save data."""
-        max_length = max(len(run) for run in all_runs_reward)
-        padded_runs = []
-        for run in all_runs_reward:
-            if len(run) < max_length:
-                padding = [run[-1]] * (max_length - len(run))
-                padded_runs.append(run + padding)
-            else:
-                padded_runs.append(run)
+    def _save_graph(self, all_runs_reward, all_runs_steps):
+        """Plot learning curve and save data (rewards and steps)."""
 
-        padded_runs = np.array(padded_runs)
-        mean_rewards = np.mean(padded_runs, axis=0)
-        std_rewards = np.std(padded_runs, axis=0)
+        max_length = max(max(len(run) for run in all_runs_reward),
+                         max(len(run) for run in all_runs_steps))
+        padded_rewards = []
+        padded_steps = []
+        for reward_run, step_run in zip(all_runs_reward, all_runs_steps):
+            # pad rewards with last reward
+            if len(reward_run) < max_length:
+                reward_pad = [reward_run[-1]] * (max_length - len(reward_run))
+                padded_rewards.append(reward_run + reward_pad)
+            else:
+                padded_rewards.append(reward_run)
+            # pad steps with last step
+            if len(step_run) < max_length:
+                step_pad = [step_run[-1]] * (max_length - len(step_run))
+                padded_steps.append(step_run + step_pad)
+            else:
+                padded_steps.append(step_run)
+
+        padded_rewards = np.array(padded_rewards)
+        padded_steps = np.array(padded_steps)
+
+        # Compute mean and std for rewards
+        mean_rewards = np.mean(padded_rewards, axis=0)
+        std_rewards = np.std(padded_rewards, axis=0)
         episodes = np.arange(max_length)
 
+        # Smooth and plot
         smoothed_mean = smooth(mean_rewards, window=101)
-
         plot = LearningCurvePlot(title=f'Learning Curve: {self.hyperparameter_set} ({self.mode_str})')
         plot.set_ylim(0, 500)
         plot.add_curve(episodes, smoothed_mean, label='Mean Reward')
         plot.save(self.GRAPH_FILE)
 
-        data_file = os.path.join(RUNS_DIR, f'{self.hyperparameter_set}_{self.mode_str}_data.npy')
-        np.save(data_file, padded_runs)
-        print(f'Graph saved to {self.GRAPH_FILE} and data saved to {data_file}')
+        # Save both reward and step data
+        reward_file = os.path.join(RUNS_DIR, f'{self.hyperparameter_set}_{self.mode_str}_data.npy')
+        np.save(reward_file, padded_rewards)
+        step_file = os.path.join(RUNS_DIR, f'{self.hyperparameter_set}_{self.mode_str}_steps.npy')
+        np.save(step_file, padded_steps)
+        print(f'Reward data saved to {reward_file}')
+        print(f'Step data saved to {step_file}')
 
 
 if __name__ == '__main__':
