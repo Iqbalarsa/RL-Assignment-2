@@ -1,0 +1,8 @@
+gymnasium==1.2.3
+matplotlib==3.10.8
+numpy==2.4.4
+pandas==3.0.2
+PyYAML==6.0.3
+scipy==1.17.1
+statsmodels==0.14.6
+torch==2.9.0

@@ -36,6 +36,29 @@ hyperparam_groups = {
     }
 }
 
+hyperparam_display = {
+    'learning_rate': {
+        'low': '0.0001',
+        'medium': '0.001',
+        'high': '0.01'
+    },
+    'train_frequency': {
+        'low': '1',
+        'medium': '4',
+        'high': '8'
+    },
+    'network_size': {
+        'low': '32',
+        'medium': '64',
+        'high': '128'
+    },
+    'exploration': {
+        'low': 'ε_init=0.5, decay_steps=50k',
+        'medium': 'ε_init=1.0, decay_steps=200k',
+        'high': 'ε_init=1.0, decay_steps=400k, ε_min=0.05'
+    }
+}
+
 MODE = 'noER_noTN'
 
 def load_data(hyperparam_set):
@@ -59,7 +82,7 @@ def format_steps(x, pos):
     else:
         return str(int(x))
 
-def get_mean_and_smooth(rewards, steps, window=101):
+def get_mean_and_smooth(rewards, steps, window=501):
 
     mean_rewards = np.mean(rewards, axis=0)
     mean_steps = np.mean(steps, axis=0)  
@@ -70,7 +93,7 @@ def get_mean_and_smooth(rewards, steps, window=101):
         smoothed = mean_rewards
     return mean_steps, smoothed
 
-def plot_group(group_name, group, window=101):
+def plot_group(group_name, group, window=501):
 
     data = {}
     for key in ['medium', 'low', 'high']:
@@ -97,10 +120,11 @@ def plot_group(group_name, group, window=101):
     for key in ['low', 'medium', 'high']:
         if key in data:
             steps, rewards = data[key]
+            value_str = hyperparam_display[group_name][key]
             ax.plot(steps, rewards,
                     color=styles[key][0],
                     linewidth=2,
-                    label=styles[key][1], alpha=0.5)
+                    label=f"{styles[key][1]} ({value_str})", alpha=0.5)
 
     ax.xaxis.set_major_formatter(FuncFormatter(format_steps))
 
@@ -118,8 +142,8 @@ def plot_group(group_name, group, window=101):
 def main():
     print("Generating ablation plots...")
     for group_name, group in hyperparam_groups.items():
-        plot_group(group_name, group, window=101)
-    print("All plots saved.")
+        plot_group(group_name, group, window=501)
+    print('All plots saved.')
 
 if __name__ == '__main__':
     main()
